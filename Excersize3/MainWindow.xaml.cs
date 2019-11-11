@@ -23,6 +23,7 @@ namespace Excersize3
         public MainWindow()
         {
             InitializeComponent();
+            Data d = new Data();
         }
     }
 }
