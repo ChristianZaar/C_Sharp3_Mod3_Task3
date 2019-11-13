@@ -20,6 +20,5 @@ namespace Excersize3
         public User()
         {
         }
-
     }
 }

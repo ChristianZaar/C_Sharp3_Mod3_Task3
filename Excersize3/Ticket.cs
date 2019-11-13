@@ -34,5 +34,10 @@ namespace Excersize3
             Date = date;
             Answers = answers;
         }
+
+        public override string ToString()
+        {
+            return Title;
+        }
     }
 }

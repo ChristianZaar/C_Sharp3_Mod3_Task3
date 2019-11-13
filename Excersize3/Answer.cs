@@ -19,6 +19,4 @@ namespace Excersize3
             Date = date;
         }
     }
-
-
 }

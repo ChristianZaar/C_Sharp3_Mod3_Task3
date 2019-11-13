@@ -12,14 +12,12 @@ namespace Excersize3
         public List<Customer> Customers { get; set; }
         public List<Admin> Admins { get; set; }
         public List<Ticket> Tickets { get; set; }
-        public List<string> Countries { get; set; }
 
         public Data()
         {
             Customers = new List<Customer>();
             Admins = new List<Admin>();
             Tickets = new List<Ticket>();
-            Countries = new List<string>() { "Sweden", "Denmark", "Norway"};
             CreateAdmins();
             CreateCustomers();
             AddTickets();
