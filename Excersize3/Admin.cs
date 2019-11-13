@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Excersize3
 {
-    class Admin:User
+    public class Admin:User
     {
         public string Office { get; set; }
 

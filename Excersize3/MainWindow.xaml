@@ -5,26 +5,25 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Excersize3"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="428" Width="541.333">
     <Grid>
-        <ListBox x:Name="ticketListBox" HorizontalAlignment="Left" Height="310" Margin="303,51,0,0" VerticalAlignment="Top" Width="347"/>
+        <ListBox x:Name="ticketListBox" HorizontalAlignment="Left" Height="310" Margin="168,37,0,0" VerticalAlignment="Top" Width="347"/>
         <ComboBox x:Name="countryComboBox" HorizontalAlignment="Left" Margin="21,37,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="SelectionChanged">
-            
+
         </ComboBox>
         <Label Content="Customer country&#xD;&#xA;" HorizontalAlignment="Left" Margin="21,10,0,0" VerticalAlignment="Top" Height="27"/>
         <ComboBox x:Name="customerComboBox" HorizontalAlignment="Left" Margin="21,91,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="SelectionChanged">
-            
+
         </ComboBox>
         <Label Content="Costumer&#xD;&#xA;&#xA;" HorizontalAlignment="Left" Margin="21,64,0,0" VerticalAlignment="Top" Height="27"/>
         <ComboBox x:Name="adminComboBox" HorizontalAlignment="Left" Margin="21,154,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="SelectionChanged">
-            
+
         </ComboBox>
         <Label Content="Admin answer&#xD;&#xA;&#xA;" HorizontalAlignment="Left" Margin="21,127,0,0" VerticalAlignment="Top" Height="27"/>
         <ComboBox x:Name="officeAdminComboBox" HorizontalAlignment="Left" Margin="21,217,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="SelectionChanged"/>
         <Label Content="Office admin answer&#xD;&#xA;&#xA;" HorizontalAlignment="Left" Margin="21,190,0,0" VerticalAlignment="Top" Height="27"/>
-        <Label Content="Support tickets&#xD;&#xA;&#xA;" HorizontalAlignment="Left" Margin="303,19,0,0" VerticalAlignment="Top" Height="27"/>
-        <ComboBox x:Name="ticketSolvedComboBox" HorizontalAlignment="Left" Margin="21,289,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="SelectionChanged"/>
-        <Label Content="Tickets solved?&#xD;&#xA;&#xA;" HorizontalAlignment="Left" Margin="21,262,0,0" VerticalAlignment="Top" Height="27"/>
+        <Label Content="Support tickets&#xD;&#xA;&#xA;" HorizontalAlignment="Left" Margin="168,10,0,0" VerticalAlignment="Top" Height="27"/>
+        <Button x:Name="viewTicketBtn" Content="View selected ticket" HorizontalAlignment="Left" Margin="390,361,0,0" VerticalAlignment="Top" Width="125" Click="ViewTicketBtn_Click" />
 
     </Grid>
 </Window>

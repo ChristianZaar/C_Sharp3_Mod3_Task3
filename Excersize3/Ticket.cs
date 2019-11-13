@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Excersize3
 {
-    class Ticket
+    public class Ticket
     {
         public int PosterId { get; set; } = 0;
         public string Title { get; set; } = "";

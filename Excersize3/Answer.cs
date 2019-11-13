@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Excersize3
 {
-    class Answer
+    public class Answer
     {
         public string Title { get; set; }
         public string Message { get; set; }
@@ -18,5 +18,6 @@ namespace Excersize3
             Message = message;
             Date = date;
         }
+       
     }
 }

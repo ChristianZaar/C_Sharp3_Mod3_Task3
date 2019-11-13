@@ -1,0 +1,17 @@
+﻿<Window x:Class="Excersize3.ViewTicket"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Excersize3"
+        mc:Ignorable="d"
+        Title="ViewTicket" Height="308.122" Width="335.502">
+    <Grid Margin="0,0,3.667,0">
+
+        <ScrollViewer HorizontalAlignment="Left" Height="230" VerticalAlignment="Top" Width="305" Margin="10,0,0,0">
+            <TextBlock x:Name="TicketTextBlock" HorizontalAlignment="Left" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="315"/>
+        </ScrollViewer>
+        <Button x:Name="DeleteTicketBtn" Content="Delete ticket" HorizontalAlignment="Left" Margin="10,235,0,0" VerticalAlignment="Top" Width="305" Height="34" Click="DeleteTicketBtn_Click"/>
+
+    </Grid>
+</Window>

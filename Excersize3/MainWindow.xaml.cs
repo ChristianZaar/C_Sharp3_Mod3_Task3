@@ -12,7 +12,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-
+/// <summary>
+/// Application for keeping track of support tickets. By selecting filter criteria in comboboxes data is queried. Showing only relevant issues and options.
+/// Main point is testing lambdas and delegates
+/// </summary>
 namespace Excersize3
 {
     public delegate void Testa();
@@ -26,6 +29,12 @@ namespace Excersize3
         private Data data;
         private List<Ticket> tickets;
         private bool blockSelectionChanged = false;
+        private Ticket selectedTicket;
+        private Func<List<string>> GetCountriesFromList;
+        private Func<List<string>> GetCustomerNamesFromList;
+        private Func<List<string>> GetAdminNamesFromList;
+        private Func<List<string>> GetAdminOfficeNamesFromList;
+        private Func<ComboBox, string> GetSelectedItem;
 
         public MainWindow()
         {
@@ -37,60 +46,40 @@ namespace Excersize3
             filterTicketsAction += CostumerFilter;
             filterTicketsAction += AdminFilter;
             filterTicketsAction += AdminOfficeFilter;
-           
-            FilterTickets();
-        }
 
-        /// <summary>
-        /// Get selectable countries
-        /// </summary>
-        /// <returns></returns>
-        private List<string> GetCountriesFromList()
-        {
-            return tickets.Join(
+            // Get selectable countries
+            GetCountriesFromList = () => tickets.Join(
                     data.Customers, t => t.PosterId,
                     c => c.ID,
                     (t, c) => c.Country)
                     .Distinct().ToList();
-        }
-        
-        /// <summary>
-        /// Get selectable customer names
-        /// </summary>
-        /// <returns></returns>
-        private List<String> GetCustomerNamesFromList()
-        {
-            return tickets.Join(
+
+            // Get selectable customer names
+            GetCustomerNamesFromList = () => tickets.Join(
                     data.Customers, t => t.PosterId,
                     c => c.ID,
                     (t, c) => c.Name)
                     .Distinct().ToList();
-        }
 
-        /// <summary>
-        /// Get selectable admin names
-        /// </summary>
-        /// <returns></returns>
-        private List<String> GetAdminNamesFromList()
-        {
-            return tickets.SelectMany(t => t.Answers)
-                .ToList().Select(a => a.Key)
-                .Distinct().ToList()
-                .Join(data.Admins, i => i, a => a.ID, (i, a) => a.Name)
-                .ToList();
-        }
+            // Get selectable admin names
+            GetAdminNamesFromList = () => tickets.SelectMany(t => t.Answers)
+                    .ToList().Select(a => a.Key)
+                    .Distinct().ToList()
+                    .Join(data.Admins, i => i, a => a.ID, (i, a) => a.Name)
+                    .ToList();
 
-        /// <summary>
-        /// Get selectable office admin names
-        /// </summary>
-        /// <returns></returns>
-        private List<String> GetAdminOfficeNamesFromList()
-        {
-            return tickets.SelectMany(t => t.Answers)
-                .ToList().Select(a => a.Key)
-                .Distinct().ToList()
-                .Join(data.Admins, i => i, a => a.ID, (i, a) => a.Office)
-                .ToList();
+            // Get selectable office admin names
+            GetAdminOfficeNamesFromList = () => tickets.SelectMany(t => t.Answers)
+                    .ToList().Select(a => a.Key)
+                    .Distinct().ToList()
+                    .Join(data.Admins, i => i, a => a.ID, (i, a) => a.Office)
+                    .ToList();
+
+            // Get selected item Combobox
+            GetSelectedItem = (ComboBox cb) =>cb.SelectedItem as String;
+
+            FilterTickets();
+
         }
 
         /// <summary>
@@ -196,16 +185,6 @@ namespace Excersize3
         }
 
         /// <summary>
-        /// Get selected item Combobox
-        /// </summary>
-        /// <param name="cb"></param>
-        /// <returns></returns>
-        private string GetSelectedItem(ComboBox cb)
-        {
-            return cb.SelectedItem as String;
-        }
-
-        /// <summary>
         /// Set source comboBoxes
         /// </summary>
         /// <param name="cb"></param>
@@ -246,6 +225,64 @@ namespace Excersize3
             if (!blockSelectionChanged)
                 FilterTickets();
             blockSelectionChanged = false;
+        }
+
+        /// <summary>
+        /// Clixk event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ViewTicketBtn_Click(object sender, RoutedEventArgs e)
+        {
+            selectedTicket = ticketListBox.SelectedItem as Ticket;
+
+            if (selectedTicket != null)
+            {
+                ViewTicket viewTicket = new ViewTicket(selectedTicket, GetTicketAuthorPart, GetTicketAdminPart);
+                viewTicket.DeleteTicket += DeleteSelectedTicket;
+                viewTicket.ShowDialog();
+            }
+        }
+
+
+        /// <summary>
+        /// Gets text for ticket
+        /// </summary>
+        /// <returns></returns>
+        private string GetTicketAuthorPart()
+        {
+            string author = data.Customers.Find(c => c.ID == selectedTicket.PosterId).Name;
+            
+             return   "Author: " + "\t" + author + "\n"
+            + "Date: " + "\t" + selectedTicket.Date.ToString("yyyyMMdd") + "\n"
+            + "Title: " + "\t" + selectedTicket.Title + "\n"
+            + "Description: " + selectedTicket.Desc + "\n\n";
+        }
+
+        /// <summary>
+        /// Gets text for ticket
+        /// </summary>
+        /// <returns></returns>
+        private string GetTicketAdminPart()
+        {
+            string answers = "";
+
+            foreach (KeyValuePair<int, Answer> entry in selectedTicket.Answers)
+            {
+                Admin admin = data.Admins.Find(a => a.ID == entry.Key);
+                answers += "Helper: " + admin.Name + " Office: " + admin.Office + "\n"
+                    + "Date: " + "\t" + entry.Value.Date.ToString("yyyyMMdd") + "\n"
+                    + "Title: " + "\t" + entry.Value.Title + "\n"
+                    + "Description: " + entry.Value.Message + "\n\n";
+            }
+
+            return answers;
+        }
+
+        private void DeleteSelectedTicket(Ticket ticket)
+        {
+            data.Tickets.Remove(ticket);
+            FilterTickets();//.Remove(ticket);
         }
     }
 }

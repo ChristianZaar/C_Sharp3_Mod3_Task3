@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace Excersize3
 {
-    class Data
+    /// <summary>
+    /// Data for queries
+    /// </summary>
+    public class Data
     {
         private static int IDs = 1;
         public List<Customer> Customers { get; set; }
@@ -23,6 +26,9 @@ namespace Excersize3
             AddTickets();
         }
 
+        /// <summary>
+        /// Creates customers
+        /// </summary>
         private void CreateCustomers()
         {
             Customers.Add(new Customer("Sweden", "Hässleholm", GetID(), "Bengt-Göran Karlsson"));
@@ -38,6 +44,9 @@ namespace Excersize3
             Customers.Add(new Customer("Denmark", "Roskilde", GetID(), "Lisbet Werland"));
         }
 
+        /// <summary>
+        /// Creates admins 
+        /// </summary>
         private void CreateAdmins()
         {
             Admins.Add(new Admin("Ney York", GetID(), "Harald Denon"));
@@ -175,6 +184,10 @@ namespace Excersize3
                 answer));
         }
 
+        /// <summary>
+        /// Get id
+        /// </summary>
+        /// <returns></returns>
         private int GetID()
         {
             return IDs++;

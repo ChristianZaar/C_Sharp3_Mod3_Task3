@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Excersize3
 {
-    class Customer : User
+    public class Customer : User
     {
         public string Country { get; set; }
         public string City { get; set; }
