@@ -29,11 +29,12 @@ namespace Excersize3
         
         private bool blockSelectionChanged = false;
         private Ticket selectedTicket;
-        private Func<List<string>> GetCountriesFromList;
-        private Func<List<string>> GetCustomerNamesFromList;
-        private Func<List<string>> GetAdminNamesFromList;
-        private Func<List<string>> GetAdminOfficeNamesFromList;
+        //private Func<List<string>> GetCountriesFromList;
+        //private Func<List<string>> GetCustomerNamesFromList;
+        //private Func<List<string>> GetAdminNamesFromList;
+        //private Func<List<string>> GetAdminOfficeNamesFromList;
         private Func<ComboBox, string> GetSelectedItem;
+        TicketManager ticketManager = new TicketManager();
 
         public MainWindow()
         {
@@ -43,7 +44,7 @@ namespace Excersize3
 
             // Get selected item Combobox
             GetSelectedItem = (ComboBox cb) =>cb.SelectedItem as String;
-
+           
             FilterTickets();
 
         }
@@ -59,10 +60,10 @@ namespace Excersize3
             filterTicketsAction();
 
             //Set selectables with options from remaining tickets
-            SetCBSource(countryComboBox, GetCountriesFromList());
-            SetCBSource(customerComboBox, GetCustomerNamesFromList());
-            SetCBSource(adminComboBox, GetAdminNamesFromList());
-            SetCBSource(officeAdminComboBox, GetAdminOfficeNamesFromList());
+            SetCBSource(countryComboBox, ticketManager.GetCountriesFromList());
+            SetCBSource(customerComboBox, ticketManager.GetCustomerNamesFromList());
+            SetCBSource(adminComboBox, ticketManager.GetAdminNamesFromList());
+            SetCBSource(officeAdminComboBox, ticketManager.GetAdminOfficeNamesFromList());
             PopulateListBox();
         }
 
@@ -128,45 +129,6 @@ namespace Excersize3
             }
         }
 
-
-        /// <summary>
-        /// Gets text for ticket
-        /// </summary>
-        /// <returns></returns>
-        private string GetTicketAuthorPart()
-        {
-            string author = data.Customers.Find(c => c.ID == selectedTicket.PosterId).Name;
-            
-             return   "Author: " + "\t" + author + "\n"
-            + "Date: " + "\t" + selectedTicket.Date.ToString("yyyyMMdd") + "\n"
-            + "Title: " + "\t" + selectedTicket.Title + "\n"
-            + "Description: " + selectedTicket.Desc + "\n\n";
-        }
-
-        /// <summary>
-        /// Gets text for ticket
-        /// </summary>
-        /// <returns></returns>
-        private string GetTicketAdminPart()
-        {
-            string answers = "";
-
-            foreach (KeyValuePair<int, Answer> entry in selectedTicket.Answers)
-            {
-                Admin admin = data.Admins.Find(a => a.ID == entry.Key);
-                answers += "Helper: " + admin.Name + " Office: " + admin.Office + "\n"
-                    + "Date: " + "\t" + entry.Value.Date.ToString("yyyyMMdd") + "\n"
-                    + "Title: " + "\t" + entry.Value.Title + "\n"
-                    + "Description: " + entry.Value.Message + "\n\n";
-            }
-
-            return answers;
-        }
-
-        private void DeleteSelectedTicket(Ticket ticket)
-        {
-            data.Tickets.Remove(ticket);
-            FilterTickets();//.Remove(ticket);
-        }
+        
     }
 }

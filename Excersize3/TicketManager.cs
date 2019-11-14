@@ -8,13 +8,13 @@ namespace Excersize3
 {
     class TicketManager
     {
-        private Func<List<string>> GetCountriesFromList;
-        private Func<List<string>> GetCustomerNamesFromList;
-        private Func<List<string>> GetAdminNamesFromList;
-        private Func<List<string>> GetAdminOfficeNamesFromList;
+        public Func<List<string>> GetCountriesFromList;
+        public Func<List<string>> GetCustomerNamesFromList;
+        public Func<List<string>> GetAdminNamesFromList;
+        public Func<List<string>> GetAdminOfficeNamesFromList;
         private Data data;
         private List<Ticket> tickets;
-        private Action filterTicketsAction;
+        private Action<string,string> FilterTicketsAction;
 
         public TicketManager()
         {
@@ -22,10 +22,10 @@ namespace Excersize3
             data = new Data();
             tickets = data.Tickets;
 
-            filterTicketsAction += CountryFilter;
-            filterTicketsAction += CostumerFilter;
-            filterTicketsAction += AdminFilter;
-            filterTicketsAction += AdminOfficeFilter;
+            FilterTicketsAction += CountryFilter;
+            FilterTicketsAction += CostumerFilter;
+            FilterTicketsAction += AdminFilter;
+            FilterTicketsAction += AdminOfficeFilter;
 
             // Get selectable countries
             GetCountriesFromList = () => tickets.Join(
@@ -61,7 +61,7 @@ namespace Excersize3
         /// <summary>
         /// Filters countries
         /// </summary>
-        private void CountryFilter(string choice)
+        private void CountryFilter(string choice, string defultChoice)
         {
 
             if (choice != null && !choice.Equals(defultChoice))
@@ -76,10 +76,8 @@ namespace Excersize3
         /// <summary>
         /// Filters Customers
         /// </summary>
-        private void CostumerFilter()
+        private void CostumerFilter(string choice, string defultChoice)
         {
-            string choice = GetSelectedItem(customerComboBox);
-
             if (choice != null && !choice.Equals(defultChoice))
             {
                 tickets = data.Customers
@@ -92,10 +90,8 @@ namespace Excersize3
         /// <summary>
         /// Filter admins
         /// </summary>
-        private void AdminFilter()
+        private void AdminFilter(string choice, string defultChoice)
         {
-            string choice = GetSelectedItem(adminComboBox);
-
             if (choice != null && !choice.Equals(defultChoice))
             {
                 Admin admin = data.Admins.Find(a => a.Name.Equals(choice));
@@ -107,10 +103,8 @@ namespace Excersize3
         /// <summary>
         /// Admin office filter
         /// </summary>
-        private void AdminOfficeFilter()
+        private void AdminOfficeFilter(string choice, string defultChoice)
         {
-            string choice = GetSelectedItem(officeAdminComboBox);
-
             if (choice != null && !choice.Equals(defultChoice))
             {
                 Admin admin = data.Admins.Find(a => a.Office.Equals(choice));
@@ -139,6 +133,46 @@ namespace Excersize3
                 }
             }
             return tickets = tmp;
+        }
+
+        /// <summary>
+        /// Gets text for ticket
+        /// </summary>
+        /// <returns></returns>
+        private string GetTicketAuthorPart()
+        {
+            string author = data.Customers.Find(c => c.ID == selectedTicket.PosterId).Name;
+
+            return "Author: " + "\t" + author + "\n"
+           + "Date: " + "\t" + selectedTicket.Date.ToString("yyyyMMdd") + "\n"
+           + "Title: " + "\t" + selectedTicket.Title + "\n"
+           + "Description: " + selectedTicket.Desc + "\n\n";
+        }
+
+        /// <summary>
+        /// Gets text for ticket
+        /// </summary>
+        /// <returns></returns>
+        private string GetTicketAdminPart()
+        {
+            string answers = "";
+
+            foreach (KeyValuePair<int, Answer> entry in selectedTicket.Answers)
+            {
+                Admin admin = data.Admins.Find(a => a.ID == entry.Key);
+                answers += "Helper: " + admin.Name + " Office: " + admin.Office + "\n"
+                    + "Date: " + "\t" + entry.Value.Date.ToString("yyyyMMdd") + "\n"
+                    + "Title: " + "\t" + entry.Value.Title + "\n"
+                    + "Description: " + entry.Value.Message + "\n\n";
+            }
+
+            return answers;
+        }
+
+        public void DeleteSelectedTicket(Ticket ticket)
+        {
+            data.Tickets.Remove(ticket);
+            FilterTickets();//.Remove(ticket);
         }
     }
 }
