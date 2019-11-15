@@ -19,17 +19,17 @@ namespace Excersize3
     /// </summary>
     public partial class ViewTicket : Window
     {
-        private event Func<String> GetTicketInfo;
-        public event Action<Ticket> DeleteTicket;
-        private Ticket ticket;
+        private event Func<ITicket,String> GetTicketInfo;
+        public event Action<ITicket> DeleteTicket;
+        private ITicket ticket;
 
-        public ViewTicket(Ticket ticket, Func<String> user, Func<String> admin)
+        public ViewTicket(ITicket ticket, Func<ITicket, string> user, Func<ITicket,String> admin)
         {
             InitializeComponent();
             GetTicketInfo += user;
-            TicketTextBlock.Text = GetTicketInfo();
+            TicketTextBlock.Text = GetTicketInfo(ticket);
             GetTicketInfo += admin;
-            TicketTextBlock.Text += GetTicketInfo();
+            TicketTextBlock.Text += GetTicketInfo(ticket);
             this.ticket = ticket;
         }
 

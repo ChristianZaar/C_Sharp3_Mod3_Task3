@@ -58,6 +58,7 @@
     <Compile Include="Admin.cs" />
     <Compile Include="Answer.cs" />
     <Compile Include="Customer.cs" />
+    <Compile Include="ITicket.cs" />
     <Compile Include="Ticket.cs" />
     <Compile Include="TicketManager.cs" />
     <Compile Include="User.cs" />

@@ -8,48 +8,41 @@ namespace Excersize3
 {
     class TicketManager
     {
-        public Func<List<string>> GetCountriesFromList;
-        public Func<List<string>> GetCustomerNamesFromList;
-        public Func<List<string>> GetAdminNamesFromList;
-        public Func<List<string>> GetAdminOfficeNamesFromList;
+        public Func<List<ITicket>,List<string>> GetCountriesFromList;
+        public Func<List<ITicket>, List<string>> GetCustomerNamesFromList;
+        public Func<List<ITicket>, List<string>> GetAdminNamesFromList;
+        public Func<List<ITicket>, List<string>> GetAdminOfficeNamesFromList;
         private Data data;
-        private List<Ticket> tickets;
-        private Action<string,string> FilterTicketsAction;
+        public event Action TicketDeleted;
 
         public TicketManager()
         {
 
             data = new Data();
-            tickets = data.Tickets;
-
-            FilterTicketsAction += CountryFilter;
-            FilterTicketsAction += CostumerFilter;
-            FilterTicketsAction += AdminFilter;
-            FilterTicketsAction += AdminOfficeFilter;
 
             // Get selectable countries
-            GetCountriesFromList = () => tickets.Join(
+            GetCountriesFromList = (List<ITicket> tickets) => tickets.ConvertAll(new Converter<ITicket, Ticket>(( t ) => (Ticket) t )).Join(
                     data.Customers, t => t.PosterId,
                     c => c.ID,
                     (t, c) => c.Country)
                     .Distinct().ToList();
 
             // Get selectable customer names
-            GetCustomerNamesFromList = () => tickets.Join(
+            GetCustomerNamesFromList = (List<ITicket> tickets) => tickets.ConvertAll(new Converter<ITicket, Ticket>((t) => (Ticket)t)).Join(
                     data.Customers, t => t.PosterId,
                     c => c.ID,
                     (t, c) => c.Name)
                     .Distinct().ToList();
 
             // Get selectable admin names
-            GetAdminNamesFromList = () => tickets.SelectMany(t => t.Answers)
+            GetAdminNamesFromList = (List<ITicket> tickets) => tickets.ConvertAll(new Converter<ITicket, Ticket>((t) => (Ticket)t)).SelectMany(t => t.Answers)
                     .ToList().Select(a => a.Key)
                     .Distinct().ToList()
                     .Join(data.Admins, i => i, a => a.ID, (i, a) => a.Name)
                     .ToList();
 
             // Get selectable office admin names
-            GetAdminOfficeNamesFromList = () => tickets.SelectMany(t => t.Answers)
+            GetAdminOfficeNamesFromList = (List<ITicket> tickets) => tickets.ConvertAll(new Converter<ITicket, Ticket>((t) => (Ticket)t)).SelectMany(t => t.Answers)
                     .ToList().Select(a => a.Key)
                     .Distinct().ToList()
                     .Join(data.Admins, i => i, a => a.ID, (i, a) => a.Office)
@@ -58,10 +51,15 @@ namespace Excersize3
 
         }
 
+        public List<ITicket> GetAllTickets()
+        {
+            return data.Tickets.ConvertAll(new Converter<Ticket, ITicket>(t=> (ITicket)t));
+        }
+
         /// <summary>
         /// Filters countries
         /// </summary>
-        private void CountryFilter(string choice, string defultChoice)
+        public List<ITicket> CountryFilter(string choice, string defultChoice, List<ITicket> tickets)
         {
 
             if (choice != null && !choice.Equals(defultChoice))
@@ -71,12 +69,13 @@ namespace Excersize3
                     .Join(tickets, c => c.ID, t => t.PosterId, (c, t) => t)
                     .ToList();
             }
+            return tickets;
         }
 
         /// <summary>
         /// Filters Customers
         /// </summary>
-        private void CostumerFilter(string choice, string defultChoice)
+        public List<ITicket> CostumerFilter(string choice, string defultChoice, List<ITicket> tickets)
         {
             if (choice != null && !choice.Equals(defultChoice))
             {
@@ -85,32 +84,36 @@ namespace Excersize3
                     .Join(tickets, c => c.ID, t => t.PosterId, (c, t) => t)
                     .ToList();
             }
+            return tickets;
         }
 
         /// <summary>
         /// Filter admins
         /// </summary>
-        private void AdminFilter(string choice, string defultChoice)
+        public List<ITicket> AdminFilter(string choice, string defultChoice, List<ITicket> tickets)
         {
             if (choice != null && !choice.Equals(defultChoice))
             {
                 Admin admin = data.Admins.Find(a => a.Name.Equals(choice));
                 List<Ticket> tmp = new List<Ticket>();
-                tickets = FindAdminAnsweredTicket(admin);
+                tickets = FindAdminAnsweredTicket(admin, tickets);
             }
+            return tickets;
         }
 
         /// <summary>
         /// Admin office filter
         /// </summary>
-        private void AdminOfficeFilter(string choice, string defultChoice)
+        public List<ITicket> AdminOfficeFilter(string choice, string defultChoice, List<ITicket> tickets)
         {
             if (choice != null && !choice.Equals(defultChoice))
             {
                 Admin admin = data.Admins.Find(a => a.Office.Equals(choice));
                 List<Ticket> tmp = new List<Ticket>();
-                tickets = FindAdminAnsweredTicket(admin);
+                tickets = FindAdminAnsweredTicket(admin, tickets);
             }
+
+            return tickets;
         }
 
         /// <summary>
@@ -118,9 +121,9 @@ namespace Excersize3
         /// </summary>
         /// <param name="admin"></param>
         /// <returns></returns>
-        private List<Ticket> FindAdminAnsweredTicket(Admin admin)
+        private List<ITicket> FindAdminAnsweredTicket(Admin admin, List<ITicket> tickets)
         {
-            List<Ticket> tmp = new List<Ticket>();
+            List<ITicket> tmp = new List<ITicket>();
             foreach (Ticket t in tickets)
             {
                 foreach (KeyValuePair<int, Answer> entry in t.Answers)
@@ -139,8 +142,11 @@ namespace Excersize3
         /// Gets text for ticket
         /// </summary>
         /// <returns></returns>
-        private string GetTicketAuthorPart()
+        public string GetTicketAuthorPart(ITicket ticket)
         {
+            if (!(ticket is Ticket selectedTicket))
+                return "";
+
             string author = data.Customers.Find(c => c.ID == selectedTicket.PosterId).Name;
 
             return "Author: " + "\t" + author + "\n"
@@ -153,8 +159,11 @@ namespace Excersize3
         /// Gets text for ticket
         /// </summary>
         /// <returns></returns>
-        private string GetTicketAdminPart()
+        public string GetTicketAdminPart(ITicket ticket)
         {
+            if (!(ticket is Ticket selectedTicket))
+                return "";
+
             string answers = "";
 
             foreach (KeyValuePair<int, Answer> entry in selectedTicket.Answers)
@@ -169,10 +178,14 @@ namespace Excersize3
             return answers;
         }
 
-        public void DeleteSelectedTicket(Ticket ticket)
+        /// <summary>
+        /// Delete ticket
+        /// </summary>
+        /// <param name="ticket"></param>
+        public void DeleteTicket(ITicket ticket)
         {
-            data.Tickets.Remove(ticket);
-            FilterTickets();//.Remove(ticket);
+            data.Tickets.Remove((Ticket)ticket);
+            TicketDeleted();
         }
     }
 }

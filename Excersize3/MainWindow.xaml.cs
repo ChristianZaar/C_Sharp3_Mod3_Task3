@@ -25,26 +25,28 @@ namespace Excersize3
     public partial class MainWindow : Window
     {
         
-        private string defultChoice = "All";
-        
+        private string defaultChoice = "All";
+        private List<ITicket> tickets = new List<ITicket>();  
         private bool blockSelectionChanged = false;
         private Ticket selectedTicket;
-        //private Func<List<string>> GetCountriesFromList;
-        //private Func<List<string>> GetCustomerNamesFromList;
-        //private Func<List<string>> GetAdminNamesFromList;
-        //private Func<List<string>> GetAdminOfficeNamesFromList;
+        private Func<string, string, List<ITicket>, List<ITicket>> FilterTicketsByCountry;
+        private Func<string, string, List<ITicket>, List<ITicket>> FilterTicketsByCostumer;
+        private Func<string, string, List<ITicket>, List<ITicket>> FilterTicketsByAdmin;
+        private Func<string, string, List<ITicket>, List<ITicket>> FilterTicketsByAdminOffice;
         private Func<ComboBox, string> GetSelectedItem;
         TicketManager ticketManager = new TicketManager();
 
         public MainWindow()
         {
             InitializeComponent();
-            
-            
-
+            ticketManager.TicketDeleted += FilterTickets;
+            FilterTicketsByCountry += ticketManager.CountryFilter;
+            FilterTicketsByCostumer += ticketManager.CostumerFilter;
+            FilterTicketsByAdmin += ticketManager.AdminFilter;
+            FilterTicketsByAdminOffice += ticketManager.AdminOfficeFilter;
             // Get selected item Combobox
             GetSelectedItem = (ComboBox cb) =>cb.SelectedItem as String;
-           
+            //SetComboboxSources();
             FilterTickets();
 
         }
@@ -55,16 +57,30 @@ namespace Excersize3
         private void FilterTickets()
         {
             //Reset tickets
-            tickets = data.Tickets;
+            tickets = ticketManager.GetAllTickets(); ;
             //Filter tickets
-            filterTicketsAction();
+            Filter();
+        
+            SetComboboxSources(); 
 
-            //Set selectables with options from remaining tickets
-            SetCBSource(countryComboBox, ticketManager.GetCountriesFromList());
-            SetCBSource(customerComboBox, ticketManager.GetCustomerNamesFromList());
-            SetCBSource(adminComboBox, ticketManager.GetAdminNamesFromList());
-            SetCBSource(officeAdminComboBox, ticketManager.GetAdminOfficeNamesFromList());
             PopulateListBox();
+        }
+
+        private void SetComboboxSources()
+        {
+            //Set selectables with options from remaining tickets
+            SetCBSource(countryComboBox, ticketManager.GetCountriesFromList(tickets));
+            SetCBSource(customerComboBox, ticketManager.GetCustomerNamesFromList(tickets));
+            SetCBSource(adminComboBox, ticketManager.GetAdminNamesFromList(tickets));
+            SetCBSource(officeAdminComboBox, ticketManager.GetAdminOfficeNamesFromList(tickets));
+        }
+
+        private void Filter()
+        {
+            tickets = FilterTicketsByCountry(GetSelectedItem(countryComboBox), defaultChoice, tickets);
+            tickets = FilterTicketsByCostumer(GetSelectedItem(customerComboBox), defaultChoice, tickets);
+            tickets = FilterTicketsByAdmin(GetSelectedItem(adminComboBox), defaultChoice, tickets);
+            tickets = FilterTicketsByAdminOffice(GetSelectedItem(officeAdminComboBox), defaultChoice, tickets);
         }
 
         
@@ -78,7 +94,7 @@ namespace Excersize3
         {
             string selectedItem = cb.SelectedItem as string;
             
-            source.Insert(0, defultChoice);
+            source.Insert(0, defaultChoice);
 
             blockSelectionChanged = true;
             cb.ItemsSource = null;
@@ -88,7 +104,7 @@ namespace Excersize3
             if (selectedItem != null)
                 cb.SelectedValue = selectedItem;
             else
-                cb.SelectedValue = defultChoice;
+                cb.SelectedValue = defaultChoice;
         }
 
         /// <summary>
@@ -123,8 +139,8 @@ namespace Excersize3
 
             if (selectedTicket != null)
             {
-                ViewTicket viewTicket = new ViewTicket(selectedTicket, GetTicketAuthorPart, GetTicketAdminPart);
-                viewTicket.DeleteTicket += DeleteSelectedTicket;
+                ViewTicket viewTicket = new ViewTicket(selectedTicket, ticketManager.GetTicketAuthorPart, ticketManager.GetTicketAdminPart);
+                viewTicket.DeleteTicket += ticketManager.DeleteTicket;
                 viewTicket.ShowDialog();
             }
         }
